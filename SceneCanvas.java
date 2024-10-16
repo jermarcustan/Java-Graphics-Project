@@ -162,7 +162,7 @@ public class SceneCanvas extends JComponent {
     }
 
     private void initializeGame() {
-        fish = new Fish(100, 300, 100);
+        fish = new Fish(100, 300, 60);
         pipes = new ArrayList<>();
         objects = new ArrayList<>();
         score = 0;
