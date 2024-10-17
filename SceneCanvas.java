@@ -137,6 +137,7 @@ public class SceneCanvas extends JComponent {
         for (Pipe pipe : pipes) {
             if (fish.getBounds().intersects(pipe.getBounds())) {
                 endGame();
+                break; // Exit the loop immediately after a collision
             }
         }
     }
