@@ -6,6 +6,9 @@ public class Fish extends DrawingObject {
     private double x, y, size;
     private double velocity = 0;
     private final double gravity = 2.0;
+    private long fallStartTime;
+    private boolean isFalling = false;
+    private long FALL_DURATION = 1000;
 
     public Fish(double x, double y, double size) {
         this.x = x;
@@ -20,10 +23,6 @@ public class Fish extends DrawingObject {
             RenderingHints.KEY_ANTIALIASING,
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
-        g2d.setColor(Color.black);
-        // Ellipse2D.Double body = new Ellipse2D.Double(x, y, size, size/2);
-        // g2d.fill(body);
-
 
         g2d.setColor(Color.BLACK);
         Path2D.Double tail = new Path2D.Double();
@@ -37,6 +36,7 @@ public class Fish extends DrawingObject {
         g2d.setColor(new Color(225, 91, 18));
         g2d.fill(tail);
         g2d.setColor(Color.BLACK);
+
         Path2D.Double upper_fin = new Path2D.Double();
         upper_fin.moveTo(x + (11.0/16)*size, y - (1.0/32)*size);
         upper_fin.curveTo(x + (17.0/32)*size, y - (3.0/8)*size, x - (5.0/32)*size, y - (1.0/8)*size, x + (10.0/32)*size, y + (1.0/32)*size);
@@ -67,6 +67,8 @@ public class Fish extends DrawingObject {
         g2d.setColor(new Color(250,149,31));
         g2d.fill(body);
 
+
+
         g2d.setColor(Color.BLACK);
         Ellipse2D.Double eye = new Ellipse2D.Double(x+3*size/4, y + size/8, size/10, size/10);
         g2d.fill(eye);
@@ -89,8 +91,20 @@ public class Fish extends DrawingObject {
         return y;
     }
 
+    public double getSize() {
+        return size;
+    }
+
     public double getHeight() {
         return size/2;
+    }
+
+    public long getFall_Duration() {
+        return FALL_DURATION;
+    }
+
+    public long getFall_StartTime() {
+        return fallStartTime;
     }
 
     public void fall() {
@@ -103,10 +117,33 @@ public class Fish extends DrawingObject {
     }
 
     public Rectangle2D getBounds() {
-         // Get and print the bounds of the ellipse
-         Rectangle2D.Double bodyBounds = new Rectangle2D.Double(x, y, size, size/2);
-         return bodyBounds;
+        
+        // The hitbox of the fish would be a rectangle enclosing the main body of the fish. 
+        // This does not include the fins or the tail.
+        Rectangle2D.Double hitbox = new Rectangle2D.Double(x + (1.0/8)*size, y, (7.0/8)*size, (7.0/16)*size);
 
+        return hitbox;
 
     }
-}
+
+    public void startFalling() {
+        isFalling = true;
+        fallStartTime = System.currentTimeMillis();
+    }
+
+    public void updateFall() {
+        if (isFalling) {
+            long currentTime = System.currentTimeMillis();
+            long elapsedTime = currentTime - fallStartTime;
+
+            if (elapsedTime < FALL_DURATION) {
+                double progress = (double) elapsedTime / FALL_DURATION;
+                double fallDistance = 800 * (progress * progress);
+                y += fallDistance - (800 * ((double)(elapsedTime - 16) / FALL_DURATION) * ((double)(elapsedTime - 16) / FALL_DURATION));
+            } else {
+                isFalling = false;
+            }
+            }
+        }
+    }
+

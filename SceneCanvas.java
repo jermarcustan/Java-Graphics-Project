@@ -3,6 +3,9 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.util.Random;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 
 public class SceneCanvas extends JComponent {
     private Fish fish;
@@ -15,10 +18,22 @@ public class SceneCanvas extends JComponent {
     private double score;
     private JButton playAgainButton;
     private int pipeCounter;
+    private int pipePassed;
+    private Clip backgroundMusic;
+    private Clip scoreMusic;
+    private Clip gameOverMusic;
+    private float volume = 0.2f; // 
+
 
     public SceneCanvas() {
         setPreferredSize(new Dimension(800, 600));
         initializeGame();
+
+        LoadBGMusic();
+        LoadScoreMusic();
+        LoadGameOverMusic();
+        setVolume(volume);
+        startBGMusic();
 
         // Create Play Again button (initially invisible)
         playAgainButton = new JButton("Play Again");
@@ -46,6 +61,11 @@ public class SceneCanvas extends JComponent {
                         if (!pipe.getPass() && fish.getX() >= pipe.getX() + pipe.getWidth()) {
                             pipe.setPass();
                             score += 0.5;
+                            pipePassed++;
+                            // play the music once after every pair of pipes passed 
+                            if (pipePassed % 2 == 0) {
+                                startScoreMusic();
+                            }
                         }
 
                         if (pipe.OverBounds()) {
@@ -71,6 +91,7 @@ public class SceneCanvas extends JComponent {
                     checkBounds();
                 }
                 repaint(); // Important! Refresh the screen
+                
             }
         });
 
@@ -123,6 +144,85 @@ public class SceneCanvas extends JComponent {
         drawScore(g2d);
     }
 
+    private void LoadBGMusic() {
+        try {
+        // Background Music: https://www.youtube.com/watch?v=Hvdfx9avekU&list=PLwJjxqYuirCLkq42mGw4XKGQlpZSfxsYd&index=4
+        File audioFile_background = new File("Background_music.wav");
+        AudioInputStream audioStream_background = AudioSystem.getAudioInputStream(audioFile_background);
+        backgroundMusic = AudioSystem.getClip();
+        backgroundMusic.open(audioStream_background);
+        }
+        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void LoadScoreMusic() {
+        try {
+        // Score Music: https://www.youtube.com/watch?v=zXKcybzvj7Y
+        File audioFile_score = new File("Score_music.wav");
+        AudioInputStream audioStream_score = AudioSystem.getAudioInputStream(audioFile_score);
+        scoreMusic = AudioSystem.getClip();
+        scoreMusic.open(audioStream_score);
+        }
+        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void LoadGameOverMusic() {
+        try {
+        // Score Music: https://www.youtube.com/watch?v=bug1b0fQS8Y
+        File audioFile_gameover = new File("GameOver_music.wav");
+        AudioInputStream audioStream_gameover = AudioSystem.getAudioInputStream(audioFile_gameover);
+        gameOverMusic = AudioSystem.getClip();
+        gameOverMusic.open(audioStream_gameover);
+        }
+        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startBGMusic() {
+        if (backgroundMusic != null && !backgroundMusic.isRunning()) {
+            backgroundMusic.setMicrosecondPosition(0);
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+    }
+
+    private void startScoreMusic() {
+        if (scoreMusic != null && !scoreMusic.isRunning()) {
+            scoreMusic.setMicrosecondPosition(0);
+            scoreMusic.start();  
+        }
+    }
+
+    private void startGameOverMusic() {
+        if (gameOverMusic != null && !gameOverMusic.isRunning()) {
+            gameOverMusic.setMicrosecondPosition(0);
+            gameOverMusic.start();  
+        }
+    }
+
+    private void setVolume(float volume) {
+        if (volume < 0f){
+            volume = 0f;
+        }
+        if (volume > 1f){
+            volume = 1f;
+        }
+
+        FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
+        float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+        gainControl.setValue(dB);
+        
+    }
+
+    private void stopBackgroundMusic() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+        }
+    }
     private void generateBubbles() {
         Random rand = new Random();
         for (int i = 0; i < 20; i++) { // Generate 20 bubbles
@@ -169,6 +269,7 @@ public class SceneCanvas extends JComponent {
         GameOver = false;
         started = false;
         pipeCounter = 0;
+        pipePassed = 0;
 
         objects.add(fish);
         addInitialPipes();
@@ -177,32 +278,39 @@ public class SceneCanvas extends JComponent {
     private void endGame() {
         GameOver = true;
         timer.stop(); // Stop the main game loop
-
+        fish.startFalling();
+        stopBackgroundMusic();
+        startGameOverMusic();
         // Disable input while waiting for the delay
         setFocusable(false);
 
         // Create a delay before showing the Game Over dialog
-        Timer delayTimer = new Timer(1000, new ActionListener() { // 1000 ms = 1 second delay
+        Timer fallTimer = new Timer(1000 / 60, new ActionListener() { // 1000 ms = 1 second delay
             @Override
             public void actionPerformed(ActionEvent e) {
-                // After the delay, show the Game Over dialog
-                int response = JOptionPane.showConfirmDialog(SceneCanvas.this, "Game Over! Your score: " + (int) score + "\nDo you want to play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+                fish.updateFall();
+                repaint();
 
-                if (response == JOptionPane.YES_OPTION) {
-                    resetGame(); // Restart the game if the player chooses "Yes"
-                } else {
-                    playAgainButton.setVisible(false); // Just to ensure it's hidden if "No"
+                if (System.currentTimeMillis() - fish.getFall_StartTime() >= fish.getFall_Duration()){
+
+                    ((Timer)e.getSource()).stop();
+                    int response = JOptionPane.showConfirmDialog(SceneCanvas.this, "Game Over! Your score: " + (int) score + "\nDo you want to play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+
+                    if (response == JOptionPane.YES_OPTION) {
+                        resetGame(); // Restart the game if the player chooses "Yes"
+                    } else {
+                        playAgainButton.setVisible(false); // Just to ensure it's hidden if "No"
+                    }
+
+                    // Re-enable input after the dialog is shown
+                    setFocusable(true);
+                    requestFocusInWindow();
+                    
                 }
 
-                // Re-enable input after the dialog is shown
-                setFocusable(true);
-                requestFocusInWindow();
             }
         });
-
-        // Ensure the delay is only triggered once
-        delayTimer.setRepeats(false);
-        delayTimer.start(); // Start the delay timer
+        fallTimer.start();
     }
 
 
@@ -214,6 +322,10 @@ public class SceneCanvas extends JComponent {
         timer.start();
         requestFocusInWindow();
         repaint();
+        stopBackgroundMusic();
+        LoadBGMusic();
+        setVolume(volume);
+        startBGMusic();
     }
 
     private void addInitialPipes() {
