@@ -12,6 +12,7 @@ public class SceneCanvas extends JComponent {
     private ArrayList<Pipe> pipes;
     private ArrayList<DrawingObject> objects;
     private ArrayList<Bubble> bubbles; // Add bubbles for background animation
+    private ArrayList<SeaweedCluster> seaweedClusters;
     private Timer timer;
     private boolean GameOver;
     private boolean started;
@@ -142,6 +143,9 @@ public class SceneCanvas extends JComponent {
 
         // Draw the score on top
         drawScore(g2d);
+
+
+
     }
 
     private void LoadBGMusic() {
@@ -273,9 +277,19 @@ public class SceneCanvas extends JComponent {
         pipeCounter = 0;
         pipePassed = 0;
 
+        // Initialize seaweed clusters to be on top of the seabed
+        seaweedClusters = new ArrayList<>();
+        seaweedClusters.add(new SeaweedCluster(50, 550, 100, 20));  // y position set to 550 (top of the seabed)
+        seaweedClusters.add(new SeaweedCluster(300, 550, 120, 25)); // Adjusted y position
+        seaweedClusters.add(new SeaweedCluster(600, 550, 90, 15));  // Adjusted y position
+
+        // Add seaweed clusters to the objects list to draw them
+        objects.addAll(seaweedClusters);
+
         objects.add(fish);
         addInitialPipes();
     }
+
 
     private void endGame() {
         GameOver = true;
@@ -364,5 +378,7 @@ public class SceneCanvas extends JComponent {
         g2d.setColor(Color.BLACK);
         g2d.drawString(scoreText, x + padding, y + fm.getAscent() + padding);
     }
+
+
 }
 
