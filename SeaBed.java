@@ -1,21 +1,21 @@
-import java.util.Random;
 import java.awt.geom.*;
 import java.awt.*;
 import javax.swing.*;
+import java.util.Random;
 
-public class Bubble extends DrawingObject {
+public class SeaBed extends DrawingObject {
     private double x;
     private double y;
     private double width;
     private double height;
-    private double speed;
+    private Color color;
 
-    public Bubble(double x, double y, double width, double height) {
+    public SeaBed(double x, double y, double width, double height, Color color) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.speed = new Random().nextDouble() * 2 + 1; // Random speed between 1 and 3
+        this.color = color;
     }
 
     @Override
@@ -26,13 +26,13 @@ public class Bubble extends DrawingObject {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
 
-        Ellipse bubble = new Ellipse(x,y,width,height, new Color(173, 216, 230, 150));
-        bubble.draw(g2d);
+        Rectangle seabed = new Rectangle(x, y, width, height, color);
+        seabed.draw(g2d);
     }
 
     @Override
     public void adjustX(double distance) {
-        // No horizontal movement needed for bubbles
+        x += distance;
     }
 
     @Override
@@ -40,10 +40,13 @@ public class Bubble extends DrawingObject {
         return x;
     }
 
-    public void rise() {
-        y -= speed; // Move bubbles upwards
-        if (y + height < 0) {
-            y = 600; // Reset bubble to bottom when it reaches the top
-        }
+    public double getY() {
+        return y;
     }
+
+    public double getWidth() {
+        return width;
+    }
+
+
 }

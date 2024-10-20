@@ -127,8 +127,8 @@ public class SceneCanvas extends JComponent {
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Draw seabed at the bottom
-        g2d.setColor(new Color(139, 69, 19));
-        g2d.fillRect(0, getHeight() - 50, getWidth(), 50);
+        SeaBed seabed = new SeaBed(0, getHeight(), getWidth(), 50, new Color(139, 69, 19));
+        seabed.draw(g2d);
 
         // Draw animated bubbles in the background
         for (Bubble bubble : bubbles) {
@@ -228,8 +228,9 @@ public class SceneCanvas extends JComponent {
         for (int i = 0; i < 20; i++) { // Generate 20 bubbles
             double x = rand.nextInt(800); // Random x-position
             double y = rand.nextInt(600); // Random y-position
-            double size = rand.nextDouble() * 15 + 5; // Random size between 5 and 20
-            bubbles.add(new Bubble(x, y, size));
+            double height = rand.nextDouble() * 15 + 5; // Random size between 5 and 20
+            double width = height * 0.9;
+            bubbles.add(new Bubble(x, y, width, height));
         }
     }
 

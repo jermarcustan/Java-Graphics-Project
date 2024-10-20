@@ -33,6 +33,7 @@ public class Fish extends DrawingObject {
         tail.closePath();
         g2d.draw(tail);
 
+
         g2d.setColor(new Color(225, 91, 18));
         g2d.fill(tail);
         g2d.setColor(Color.BLACK);
@@ -67,14 +68,20 @@ public class Fish extends DrawingObject {
         g2d.setColor(new Color(250,149,31));
         g2d.fill(body);
 
+        Circle eye = new Circle(x+3*size/4, y + size/8, size/10, Color.BLACK);
+        eye.draw(g2d);
+        Circle pupil = new Circle(x+25*size/32, y + 9*size/64, size/20, Color.WHITE);
+        pupil.draw(g2d);
 
+        Line tail_line_1 = new Line(x + (1.0/8)*size, y + ((1.0/4) * size), x - (2.2/8)*size, y + (1.0/4)*size, 1, Color.BLACK);
+        tail_line_1.draw(g2d);
 
-        g2d.setColor(Color.BLACK);
-        Ellipse2D.Double eye = new Ellipse2D.Double(x+3*size/4, y + size/8, size/10, size/10);
-        g2d.fill(eye);
-        g2d.setColor(Color.WHITE);
-        Ellipse2D.Double pupil = new Ellipse2D.Double(x+25*size/32, y + 9*size/64, size/20, size/20);
-        g2d.fill(pupil);
+        Line tail_line_2 = new Line(x + (1.2/8)*size, y + ((0.7/4) * size), x - (1.0/8)*size, y - (0.2/4)*size, 1, Color.BLACK);
+        tail_line_2.draw(g2d);
+
+        Line tail_line_3 = new Line(x + (1.2/8)*size, y + ((1.3/4) * size), x - (1.0/8)*size, y + (2.2/4)*size, 1, Color.BLACK);
+        tail_line_3.draw(g2d);
+
     }
 
     @Override
@@ -138,8 +145,8 @@ public class Fish extends DrawingObject {
 
             if (elapsedTime < FALL_DURATION) {
                 double progress = (double) elapsedTime / FALL_DURATION;
-                double fallDistance = 800 * (progress * progress);
-                y += fallDistance - (800 * ((double)(elapsedTime - 16) / FALL_DURATION) * ((double)(elapsedTime - 16) / FALL_DURATION));
+                double fallDistance = 1200 * (progress * progress);
+                y += fallDistance - (1200 * ((double)(elapsedTime - 16) / FALL_DURATION) * ((double)(elapsedTime - 16) / FALL_DURATION));
             } else {
                 isFalling = false;
             }

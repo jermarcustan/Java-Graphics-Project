@@ -14,6 +14,8 @@ public class SceneFrame extends JFrame {
         canvas = new SceneCanvas();
         add(canvas);
 
+        // Disable resizing
+        setResizable(false);
 
         pack();
         getContentPane().setBackground(Color.WHITE );
