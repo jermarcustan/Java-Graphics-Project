@@ -127,7 +127,7 @@ public class SceneCanvas extends JComponent {
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Draw seabed at the bottom
-        SeaBed seabed = new SeaBed(0, getHeight(), getWidth(), 50, new Color(139, 69, 19));
+        SeaBed seabed = new SeaBed(0, getHeight() - 50, getWidth(), 50, new Color(139, 69, 19));
         seabed.draw(g2d);
 
         // Draw animated bubbles in the background

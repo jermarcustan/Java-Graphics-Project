@@ -28,6 +28,8 @@ public class SeaBed extends DrawingObject {
 
         Rectangle seabed = new Rectangle(x, y, width, height, color);
         seabed.draw(g2d);
+
+        
     }
 
     @Override
