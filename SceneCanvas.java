@@ -1,3 +1,19 @@
+/**
+ * SceneCanvas.java
+ *
+ * Description: This class represents the main game canvas where all the game objects, including the fish, pipes,
+ * bubbles, seaweed clusters, and score, are drawn. The class also handles the game loop, user input,
+ * collision detection, and game state management, including starting, resetting, and ending the game.
+ *
+ * Author: Ang, Tan
+ * ID Number: 200302
+ * Date Created: October 20, 2024
+ *
+ * Certification of Authorship:
+ * I certify that I have authored this code on my own. Any assistance received in writing this code
+ * has been acknowledged, and the code has been created entirely by myself.
+ */
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -7,6 +23,10 @@ import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * The SceneCanvas class draws all of the game elements, including the fish, pipes, bubbles, and seaweed clusters. It also controls the game logic, such as
+ * detecting collisions, handling user input, playing background music, and managing the game states (start, end, reset).
+ */
 public class SceneCanvas extends JComponent {
     private Fish fish;
     private ArrayList<Pipe> pipes;
@@ -23,9 +43,13 @@ public class SceneCanvas extends JComponent {
     private Clip backgroundMusic;
     private Clip scoreMusic;
     private Clip gameOverMusic;
-    private float volume = 0.2f; // 
+    private float volume = 0.2f;
 
-
+    /**
+     * Constructor for the SceneCanvas class.
+     * Initializes the game objects and sets up the game environment. This includes loading background music,
+     * generating bubbles, handling the game loop, and listening for user input.
+     */
     public SceneCanvas() {
         setPreferredSize(new Dimension(800, 600));
         initializeGame();
@@ -47,7 +71,7 @@ public class SceneCanvas extends JComponent {
         bubbles = new ArrayList<>();
         generateBubbles();
 
-        // Create a timer for the main game loop
+        // Create a timer for the main game loop.
         timer = new Timer(1000 / 60, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -63,7 +87,7 @@ public class SceneCanvas extends JComponent {
                             pipe.setPass();
                             score += 0.5;
                             pipePassed++;
-                            // play the music once after every pair of pipes passed 
+                            // Play score music after every pair of pipes passed
                             if (pipePassed % 2 == 0) {
                                 startScoreMusic();
                             }
@@ -92,11 +116,10 @@ public class SceneCanvas extends JComponent {
                     checkBounds();
                 }
                 repaint(); // Important! Refresh the screen
-                
             }
         });
 
-        // Key listener to make the fish "flap"
+        // Key listener to make the fish "flap" when the space bar is pressed.
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -113,10 +136,19 @@ public class SceneCanvas extends JComponent {
         requestFocusInWindow();
     }
 
+    /**
+     * Method that starts the game by starting the timer which controls the game loop.
+     */
     public void startGame() {
         timer.start();
     }
 
+    /**
+     * Paints all components on the canvas, including the ocean background, seabed, fish, pipes, bubbles, seaweed clusters,
+     * and the score.
+     *
+     * @param g the Graphics object used to draw on the canvas
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -143,50 +175,53 @@ public class SceneCanvas extends JComponent {
 
         // Draw the score on top
         drawScore(g2d);
-
-
-
     }
 
+    /**
+     * Method that loads and prepares the background music for the game.
+     */
     private void LoadBGMusic() {
         try {
-        // Background Music: https://www.youtube.com/watch?v=Hvdfx9avekU&list=PLwJjxqYuirCLkq42mGw4XKGQlpZSfxsYd&index=4
-        File audioFile_background = new File("Background_music.wav");
-        AudioInputStream audioStream_background = AudioSystem.getAudioInputStream(audioFile_background);
-        backgroundMusic = AudioSystem.getClip();
-        backgroundMusic.open(audioStream_background);
-        }
-        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            File audioFile_background = new File("Background_music.wav");
+            AudioInputStream audioStream_background = AudioSystem.getAudioInputStream(audioFile_background);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioStream_background);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Method that loads and prepares the score music. This is played whenever the player successfully moves past two pipes.
+     */
     private void LoadScoreMusic() {
         try {
-        // Score Music: https://www.youtube.com/watch?v=zXKcybzvj7Y
-        File audioFile_score = new File("Score_music.wav");
-        AudioInputStream audioStream_score = AudioSystem.getAudioInputStream(audioFile_score);
-        scoreMusic = AudioSystem.getClip();
-        scoreMusic.open(audioStream_score);
-        }
-        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            File audioFile_score = new File("Score_music.wav");
+            AudioInputStream audioStream_score = AudioSystem.getAudioInputStream(audioFile_score);
+            scoreMusic = AudioSystem.getClip();
+            scoreMusic.open(audioStream_score);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Method that loads and prepares the game-over music, which is played when the player loses.
+     */
     private void LoadGameOverMusic() {
         try {
-        // Score Music: https://www.youtube.com/watch?v=bug1b0fQS8Y
-        File audioFile_gameover = new File("GameOver_music.wav");
-        AudioInputStream audioStream_gameover = AudioSystem.getAudioInputStream(audioFile_gameover);
-        gameOverMusic = AudioSystem.getClip();
-        gameOverMusic.open(audioStream_gameover);
-        }
-        catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            File audioFile_gameover = new File("GameOver_music.wav");
+            AudioInputStream audioStream_gameover = AudioSystem.getAudioInputStream(audioFile_gameover);
+            gameOverMusic = AudioSystem.getClip();
+            gameOverMusic.open(audioStream_gameover);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Starts playing the background music in a loop.
+     */
     private void startBGMusic() {
         if (backgroundMusic != null && !backgroundMusic.isRunning()) {
             backgroundMusic.setMicrosecondPosition(0);
@@ -194,20 +229,31 @@ public class SceneCanvas extends JComponent {
         }
     }
 
+    /**
+     * Starts playing the score music when the player successfully passes two pipes.
+     */
     private void startScoreMusic() {
         if (scoreMusic != null && !scoreMusic.isRunning()) {
             scoreMusic.setMicrosecondPosition(0);
-            scoreMusic.start();  
+            scoreMusic.start();
         }
     }
 
+    /**
+     * Starts playing the game-over music when the player loses.
+     */
     private void startGameOverMusic() {
         if (gameOverMusic != null && !gameOverMusic.isRunning()) {
             gameOverMusic.setMicrosecondPosition(0);
-            gameOverMusic.start();  
+            gameOverMusic.start();
         }
     }
 
+    /**
+     * Sets the volume of the background music.
+     *
+     * @param volume a float representing the desired volume (between 0.0 and 1.0)
+     */
     private void setVolume(float volume) {
         if (volume < 0f){
             volume = 0f;
@@ -219,14 +265,20 @@ public class SceneCanvas extends JComponent {
         FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
         float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
         gainControl.setValue(dB);
-        
     }
 
+    /**
+     * Stops the background music.
+     */
     private void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
             backgroundMusic.stop();
         }
     }
+
+    /**
+     * Generates bubbles at random positions in the game.
+     */
     private void generateBubbles() {
         Random rand = new Random();
         for (int i = 0; i < 20; i++) { // Generate 20 bubbles
@@ -238,6 +290,9 @@ public class SceneCanvas extends JComponent {
         }
     }
 
+    /**
+     * Checks for collisions between the fish and pipes, ending the game if a collision occurs.
+     */
     private void checkCollisions() {
         for (Pipe pipe : pipes) {
             if (fish.getBounds().intersects(pipe.getBounds())) {
@@ -247,12 +302,18 @@ public class SceneCanvas extends JComponent {
         }
     }
 
+    /**
+     * Checks if the fish is out of bounds (top or bottom of the screen), ending the game if it is.
+     */
     private void checkBounds() {
         if (fish.getY() <= 0 || fish.getY() >= 600 - fish.getHeight()) {
             endGame();
         }
     }
 
+    /**
+     * Generates new pipes at random intervals and positions them along the screen.
+     */
     private void generatePipes() {
         Random rand = new Random();
         int randHeight = rand.nextInt(400); // Random height for the top pipe
@@ -266,6 +327,10 @@ public class SceneCanvas extends JComponent {
         objects.add(topPipe);
         objects.add(bottomPipe);
     }
+
+    /**
+     * Initializes all game objects and sets the game to its starting state.
+     */
 
     private void initializeGame() {
         fish = new Fish(100, 300, 60);
@@ -290,48 +355,45 @@ public class SceneCanvas extends JComponent {
         addInitialPipes();
     }
 
-
+    /**
+     * Ends the game, stops the main game loop, and triggers the game-over sequence.
+     */
     private void endGame() {
         GameOver = true;
         timer.stop(); // Stop the main game loop
         fish.startFalling();
         stopBackgroundMusic();
         startGameOverMusic();
-        // Disable input while waiting for the delay
         setFocusable(false);
 
-        // Create a delay before showing the Game Over dialog
-        Timer fallTimer = new Timer(1000 / 60, new ActionListener() { // 1000 ms = 1 second delay
+        // Create a delay before showing the Game Over dialog. This prevents the user from accidentally playing again by pressing space bar.
+        Timer fallTimer = new Timer(1000 / 60, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 fish.updateFall();
                 repaint();
 
-                if (System.currentTimeMillis() - fish.getFall_StartTime() >= fish.getFall_Duration()){
-
+                if (System.currentTimeMillis() - fish.getFall_StartTime() >= fish.getFall_Duration()) {
                     ((Timer)e.getSource()).stop();
                     int response = JOptionPane.showConfirmDialog(SceneCanvas.this, "Game Over! Your score: " + (int) score + "\nDo you want to play again?", "Game Over", JOptionPane.YES_NO_OPTION);
 
                     if (response == JOptionPane.YES_OPTION) {
                         resetGame(); // Restart the game if the player chooses "Yes"
                     } else {
-                        playAgainButton.setVisible(false); // Just to ensure it's hidden if "No"
+                        playAgainButton.setVisible(false); // Ensure it's hidden if "No"
                     }
 
-                    // Re-enable input after the dialog is shown
                     setFocusable(true);
                     requestFocusInWindow();
-                    
                 }
-
             }
         });
         fallTimer.start();
     }
 
-
-
-
+    /**
+     * Resets the game state to the starting conditions, reinitializes objects, and restarts the game.
+     */
     private void resetGame() {
         initializeGame();
         playAgainButton.setVisible(false);
@@ -344,6 +406,9 @@ public class SceneCanvas extends JComponent {
         startBGMusic();
     }
 
+    /**
+     * Adds initial pipes to the game screen when the game begins.
+     */
     private void addInitialPipes() {
         Pipe topPipe = new Pipe(800, 0, 100, 200);
         Pipe bottomPipe = new Pipe(800, 400, 100, 200);
@@ -354,6 +419,11 @@ public class SceneCanvas extends JComponent {
         objects.add(bottomPipe);
     }
 
+    /**
+     * Draws the current game score on the screen.
+     *
+     * @param g2d the Graphics2D object used for drawing the score
+     */
     private void drawScore(Graphics2D g2d) {
         Font scoreFont = new Font("Arial", Font.BOLD, 24);
         g2d.setFont(scoreFont);
@@ -374,11 +444,7 @@ public class SceneCanvas extends JComponent {
         g2d.drawRect(x, y, borderWidth, borderHeight);
 
         // Draw the score text
-        // Draw the score text
         g2d.setColor(Color.BLACK);
         g2d.drawString(scoreText, x + padding, y + fm.getAscent() + padding);
     }
-
-
 }
-

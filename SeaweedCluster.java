@@ -45,6 +45,6 @@ public class SeaweedCluster extends DrawingObject {
 
     @Override
     public double getX() {
-        return seaweedStems.get(0).getX();
+        return seaweedStems.get(0).getX();  // Return the X coordinate of the first stem
     }
 }
